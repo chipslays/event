@@ -12,11 +12,11 @@ $ composer require chipslays/event
 
 #### `__construct($data)`
 
-Paramater `$data` must be a `array`, `string`, `stdClass` or instance of `Chipslays\Collection\Collection`.
+Paramater `$data` must be a `array`, `string` (json), `stdClass` or instance of `Chipslays\Collection\Collection`.
 
 #### `on(string $event, callable|string $fn [, int $sort = 500]): Event`
 
-Paramater `$fn` must be a function or class.
+Paramater `$fn` must be a function or class (support static and non-static methods).
 
 ```php
 $event->on(..., function () {...});
