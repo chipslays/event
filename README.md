@@ -1,6 +1,6 @@
-# Event
+# ☎ Event
 
-☎ A simple event dispatching mechanism (like routing) for chat bots.
+A simple event dispatching mechanism (like routing) for chat bots.
 
 ## Installation
 
@@ -70,9 +70,14 @@ $event->on('message.text', function () {
 $event->run();
 ```
 
-
 ```php
 $event->on(['message.text' => 'Hello 👋'], function () {
+    echo 'Hello!';
+});
+```
+
+```php
+$event->on(['*.text' => 'Hello 👋'], function () {
     echo 'Hello!';
 });
 ```
@@ -87,6 +92,20 @@ $event->on([['message.text' => 'Bye'], ['message.text' => 'Goodbye']], function 
 ```php
 $event->on(['*.text' => 'My name is {name}'], function ($name) {
     echo "Nice to meet you, {$name}!";
+});
+```
+
+```php
+// {user} - is a required parameter, he should be in text
+// {time?} - is a optional parameter, it may not be in text
+$event->on(['*.text' => '/ban {user} {time?}'], function ($user = null, $time = null) {
+    echo "Banned: {$user}, time:" . $time ?? strtotime('+7 day');
+});
+```
+
+```php
+$event->on('{message}', function ($message) {
+    echo "Your message: {$message}";
 });
 ```
 
