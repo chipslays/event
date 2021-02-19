@@ -1,5 +1,5 @@
 {
-    "name": "chipslays/events",
+    "name": "chipslays/event",
     "description": "Handle JSON based events.",
     "keywords": ["events"],
     "type": "library",
