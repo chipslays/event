@@ -128,7 +128,7 @@ $event->on(['*.firstname' => 'John'], function () {
 ```
 
 ```php
-// Ypu can use sort for events
+// You can use sort for events
 $event->on(['*.firstname' => 'John'], function () {
     echo "This text will never be displayed";
 }, 500);
