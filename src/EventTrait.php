@@ -50,6 +50,10 @@ trait EventTrait
      */
     public function on($event, $fn, int $sort = 500)
     {
+        if ($this->data === []) {
+            return $this;
+        }
+        
         foreach ((array) $event as $key => $value) {
 
             /**
