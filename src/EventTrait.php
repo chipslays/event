@@ -16,10 +16,18 @@ trait EventTrait
      */
     private $events = [];
 
-    /**
+     /**
      * @param array|string|\stdClass|\Chipslays\Collection\Collection $data
      */
     public function __construct($data)
+    {
+        $this->setEventData($data);
+    }
+
+    /**
+     * @param array|string|\stdClass|\Chipslays\Collection\Collection $data
+     */
+    public function setEventData($data) 
     {
         if (is_string($data)) {
             if (($data = json_decode($data, true)) !== null) {
