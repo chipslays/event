@@ -1,11 +1,10 @@
 {
-    "name": "chipslays/events",
-    "description": "Handle JSON based events.",
-    "keywords": ["events"],
+    "name": "chipslays/event",
+    "description": "A simple event dispatching mechanism (like routing) for chat bots.",
+    "keywords": ["events", "event-driver"],
     "type": "library",
     "license": "MIT",
     "require": {
-        "php": ">=7.4",
         "chipslays/collection": "^1.0"
     },
     "autoload": {
