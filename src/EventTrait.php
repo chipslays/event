@@ -64,10 +64,12 @@ trait EventTrait
     }
 
     /**
-     * @return void
+     * @return bool True any event has been caught, False no one event not be caught.
      */
-    private function runAllEvents()
+    protected function runAllEvents()
     {
+        $hasAnyEventCaught = false;
+
         foreach ($this->getEvents() as $item) {
             foreach ((array) $item['event'] as $key => $value) {
 
@@ -83,8 +85,9 @@ trait EventTrait
                  * ['key'] or 'key'
                  */
                 if (is_numeric($key) && $this->data->has($value)) {
+                    $hasAnyEventCaught = true;
                     if ($this->executeCallback($item['callback']) === false) {
-                        return;
+                        return $hasAnyEventCaught;
                     }
                     break;
                 }
@@ -101,8 +104,9 @@ trait EventTrait
                  * ['key' => 'value']
                  */
                 if ($received == $value) {
+                    $hasAnyEventCaught = true;
                     if ($this->executeCallback($item['callback']) === false) {
-                        return;
+                        return $hasAnyEventCaught;
                     }
                     break;
                 }
@@ -116,8 +120,9 @@ trait EventTrait
                 $pattern = '~^' . preg_replace('/{(.*?)}/', '(.*?)', $value) . '$~';
 
                 if (@preg_match_all($pattern, $received, $matches)) {
+                    $hasAnyEventCaught = true;
                     if ($this->executeCallback($item['callback'], $this->buildParamsFromMatches($matches))  === false) {
-                        return;
+                        return $hasAnyEventCaught;
                     }
                     break;
                 }
@@ -126,13 +131,16 @@ trait EventTrait
                  * ['key' => '/regex/i]
                  */
                 if (@preg_match_all($value, $received, $matches)) {
+                    $hasAnyEventCaught = true;
                     if ($this->executeCallback($item['callback'], $this->buildParamsFromMatches($matches)) === false) {
-                        return;
+                        return $hasAnyEventCaught;
                     }
                     break;
                 }
             }
         }
+
+        return $hasAnyEventCaught;
     }
 
     /**
