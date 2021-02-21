@@ -1,6 +1,6 @@
 # ☎ Event
 
-A simple event dispatching mechanism (like routing) for chat bots.
+A simple event dispatching mechanism (like routing) for chat bots and not only.
 
 ## Installation
 
