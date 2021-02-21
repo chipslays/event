@@ -16,10 +16,18 @@ trait EventTrait
      */
     private $events = [];
 
-    /**
+     /**
      * @param array|string|\stdClass|\Chipslays\Collection\Collection $data
      */
     public function __construct($data)
+    {
+        $this->setEventData($data);
+    }
+
+    /**
+     * @param array|string|\stdClass|\Chipslays\Collection\Collection $data
+     */
+    public function setEventData($data) 
     {
         if (is_string($data)) {
             if (($data = json_decode($data, true)) !== null) {
@@ -36,13 +44,79 @@ trait EventTrait
      * Handle events.
      * 
      * @param array|string $event
-     * @param callable|string $callback
+     * @param callable|string $fn
      * @param integer $sort
-     * @return mixed
+     * @return static
      */
-    public function on($event, $callback, int $sort = 500)
+    public function on($event, $fn, int $sort = 500)
     {
-        $this->addEvent($event, $callback, $sort);
+        foreach ((array) $event as $key => $value) {
+
+            /**
+             * [['key' => 'value'], ...]
+             */
+            if (is_array($value)) {
+                $key = key($value);
+                $value = $value[$key];
+            }
+
+            /**
+             * ['key'] or 'key'
+             */
+            if (is_numeric($key) && $this->data->has($value)) {
+                $this->events[$sort][] = [
+                    'fn' => $fn,
+                ];
+                break;
+            }
+
+            /**
+             * Get value by key, if not exists then skip iteration.
+             * ['key' => 'value']
+             */
+            if (!$received = $this->data->get($key)) {
+                continue;
+            }
+
+            /**
+             * ['key' => 'value']
+             */
+            if ($received == $value) {
+                $this->events[$sort][] = [
+                    'fn' => $fn,
+                ];
+                break;
+            }
+
+            /**
+             * ['key' => 'my name is {name}']
+             * 
+             * command(?: (.*?))?(?: (.*?))?$
+             */
+            $value = preg_replace('~.?{(.*?)\?}~', '(?: (.*?))?', $value);
+            $pattern = '~^' . preg_replace('/{(.*?)}/', '(.*?)', $value) . '$~';
+
+            if (@preg_match_all($pattern, $received, $matches)) {
+                $this->events[$sort][] = [
+                    'fn' => $fn,
+                    'params' => $this->buildParamsFromMatches($matches),
+                ];
+                break;
+            }
+
+            /**
+             * ['key' => '/regex/i]
+             */
+            if (@preg_match_all($value, $received, $matches)) {
+                $this->events[$sort][] = [
+                    'fn' => $fn,
+                    'params' => $this->buildParamsFromMatches($matches),
+                ];
+                break;
+            }
+        }
+
+        return $this;
     }
 
     /**
@@ -52,78 +126,23 @@ trait EventTrait
      */
     public function run()
     {
-        $this->runAllEvents();
+        $this->runCaughtEvents();
     }
 
     /**
-     * @return void
+     * @return bool - True: has any event caught, False: no caught events
      */
-    private function runAllEvents()
+    private function runCaughtEvents()
     {
-        foreach ($this->getEvents() as $item) {
-            foreach ((array) $item['event'] as $key => $value) {
-
-                /**
-                 * [['key' => 'value'], ...]
-                 */
-                if (is_array($value)) {
-                    $key = key($value);
-                    $value = $value[$key];
-                }
-
-                /**
-                 * ['key'] or 'key'
-                 */
-                if (is_numeric($key) && $this->data->has($value)) {
-                    if ($this->executeCallback($item['callback']) === false) {
-                        return;
-                    }
-                    break;
-                }
-
-                /**
-                 * Get value by key, if not exists then skip iteration.
-                 * ['key' => 'value']
-                 */
-                if (!$received = $this->data->get($key)) {
-                    continue;
-                }
-
-                /**
-                 * ['key' => 'value']
-                 */
-                if ($received == $value) {
-                    if ($this->executeCallback($item['callback']) === false) {
-                        return;
-                    }
-                    break;
-                }
-
-                /**
-                 * ['key' => 'my name is {name}']
-                 * 
-                 * command(?: (.*?))?(?: (.*?))?$
-                 */
-                $value = preg_replace('~.?{(.*?)\?}~', '(?: (.*?))?', $value);
-                $pattern = '~^' . preg_replace('/{(.*?)}/', '(.*?)', $value) . '$~';
-
-                if (@preg_match_all($pattern, $received, $matches)) {
-                    if ($this->executeCallback($item['callback'], $this->buildParamsFromMatches($matches))  === false) {
-                        return;
-                    }
-                    break;
-                }
-
-                /**
-                 * ['key' => '/regex/i]
-                 */
-                if (@preg_match_all($value, $received, $matches)) {
-                    if ($this->executeCallback($item['callback'], $this->buildParamsFromMatches($matches)) === false) {
-                        return;
-                    }
+        if ($this->events === []) {
+            return false;
+        } else {
+            foreach ($this->getEvents() as $event) {
+                if ($this->executeController($event['fn'], $event['params'] ?? []) === false) {
                     break;
                 }
             }
+            return true;
         }
     }
 
@@ -132,13 +151,13 @@ trait EventTrait
      * @param array $params
      * @return mixed
      */
-    private function executeCallback($callback, $params = [])
+    private function executeController($fn, $params = [])
     {
-        if (is_callable($callback) || $callback instanceof \Closure) {
-            return call_user_func_array($callback, $params);
+        if (is_callable($fn) || $fn instanceof \Closure) {
+            return call_user_func_array($fn, $params);
         }
 
-        [$controller, $method] = explode('@', $callback);
+        [$controller, $method] = explode('@', $fn);
 
         try {
             $reflectedMethod = new \ReflectionMethod($controller, $method);
@@ -147,7 +166,7 @@ trait EventTrait
                 if ($reflectedMethod->isStatic()) {
                     return forward_static_call_array([$controller, $method], $params);
                 } else {
-                    if (is_string($controller)) {
+                    if (\is_string($controller)) {
                         $controller = new $controller();
                     }
                     return call_user_func_array([$controller, $method], $params);
@@ -167,20 +186,6 @@ trait EventTrait
         return array_filter(array_map(function ($item) {
             return array_shift($item);
         }, array_slice($matches, 1)));
-    }
-
-    /**
-     * @param string|array $event
-     * @param callable|string $callback
-     * @param int $sort
-     * @return void
-     */
-    protected function addEvent($event, $callback, $sort)
-    {
-        $this->events[$sort][] = [
-            'event' => $event,
-            'callback' => $callback,
-        ];
     }
 
     /**
