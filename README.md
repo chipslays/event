@@ -45,6 +45,63 @@ class MyClass
 
 ```
 
+Redefine methods `on`, `run`:
+
+```php
+use Chipslays\Event\EventTrait;
+
+// Redefine methods in other trait
+trait MyOwnEvent
+{
+    /**
+     * @param array|string $event
+     * @param callable|string $callback
+     * @param integer $sort
+     * @return void
+     */
+    public function on($event, $callback, int $sort = 500)
+    {
+        // do something before..
+        
+        $this->addEvent($event, $callback, $sort);
+        
+        // do something after...
+    }
+
+    /**
+     * @return void
+     */
+    public function run()
+    {
+        if ($this->runAllEvents()) {
+            echo 'At least one event was caught';
+        } else {
+            echo 'No event was caught';
+        }
+    }
+}
+
+// Create custom class
+class MyClass
+{
+    use MyOwnEvent, EventTrait {
+        MyOwnEvent::on insteadof EventTrait;
+        MyOwnEvent::run insteadof EventTrait;
+    }
+
+    // place some methods...
+}
+
+$event = new MyClass([...]);
+
+$event->on('...', function () {
+    ...
+});
+
+$event->run();
+
+```
+
 ## Usage
 
 ```php
