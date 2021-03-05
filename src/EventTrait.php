@@ -180,9 +180,9 @@ trait EventTrait
      */
     private function buildParamsFromMatches($matches)
     {
-        return array_filter(array_map(function ($item) {
+        return array_map(function ($item) {
             return array_shift($item);
-        }, array_slice($matches, 1)));
+        }, array_slice($matches, 1));
     }
 
     /**
