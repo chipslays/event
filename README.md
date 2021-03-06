@@ -12,7 +12,7 @@ $ composer require chipslays/event
 
 #### `__construct($data)`
 
-Paramater `$data` must be a `array`, `string` (json), `stdClass` or instance of `Chipslays\Collection\Collection`.
+Parameter `$data` must be a `array`, `string` (json), `stdClass` or instance of `Chipslays\Collection\Collection`.
 
 #### `on(string $event, callable|string $fn [, int $sort = 500]): Event`
 
@@ -128,14 +128,14 @@ $event->run();
 ```
 
 ```php
-$event->on(['message.text' => 'Hello 👋'], function () {
-    echo 'Hello!';
+$event->on(['message.text' => 'hello'], function () {
+    echo 'Hello 👋';
 });
 ```
 
 ```php
-$event->on(['*.text' => 'Hello 👋'], function () {
-    echo 'Hello!';
+$event->on(['*.text' => 'hello'], function () {
+    echo 'Hello 👋';
 });
 ```
 
