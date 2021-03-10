@@ -51,7 +51,7 @@ Redefine methods `on`, `run`:
 use Chipslays\Event\EventTrait;
 
 // Redefine methods in other trait
-trait MyOwnEvent
+trait MyEventTrait
 {
     /**
      * @param array|string $event
@@ -82,17 +82,17 @@ trait MyOwnEvent
 }
 
 // Create custom class
-class MyClass
+class MyEventClass
 {
-    use MyOwnEvent, EventTrait {
-        MyOwnEvent::on insteadof EventTrait;
-        MyOwnEvent::run insteadof EventTrait;
+    use MyEventTrait, EventTrait {
+        MyEventTrait::on insteadof EventTrait;
+        MyEventTrait::run insteadof EventTrait;
     }
 
     // place some methods...
 }
 
-$event = new MyClass([...]);
+$event = new MyEventClass([...]);
 
 $event->on('...', function () {
     ...
