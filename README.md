@@ -111,7 +111,7 @@ require __DIR__ . 'vendor/autoload.php';
 
 $event = new Event([
     'message' => [
-        'text' => 'Hello 👋',
+        'text' => 'hello',
     ],
     'user' => [
         'id' => 1234567890,
