@@ -251,4 +251,22 @@ final class BotTest extends TestCase
 
         $this->assertEquals('user', $output);
     }
+
+    public function testCallbackParams()
+    {
+        $event = new Event([
+            'ok',
+        ]);
+
+        $event->on('ok', [function (...$args) {
+            echo array_sum($args);
+        }, 2, 2, 1, 5]);
+
+        ob_start();
+        $event->run();
+        $output = ob_get_contents();
+        ob_end_clean();
+
+        $this->assertEquals(10, $output);
+    }
 }

@@ -44,7 +44,7 @@ trait EventTrait
      * Handle events.
      * 
      * @param array|string $event
-     * @param callable|string $callback
+     * @param callable|string|array $callback
      * @param integer $sort
      * @return mixed
      */
@@ -144,12 +144,21 @@ trait EventTrait
     }
 
     /**
-     * @param callable|string $callback
+     * @param callable|string|array $callback
      * @param array $params
      * @return mixed
      */
     private function executeCallback($callback, $params = [])
     {
+        /**
+         * $this->addEvent($event, [$callback, [$param1, $param2, ...], $sort])
+         */
+        if (is_array($callback)) {
+            $tmp = $callback;
+            $callback = array_shift($tmp);
+            $params = array_merge($params, $tmp);
+        }
+
         if (is_callable($callback) || $callback instanceof \Closure) {
             return call_user_func_array($callback, $params);
         }
@@ -187,7 +196,7 @@ trait EventTrait
 
     /**
      * @param string|array $event
-     * @param callable|string $callback
+     * @param callable|string|array $callback
      * @param int $sort
      * @return void
      */
