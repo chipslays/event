@@ -30,6 +30,12 @@ $event->on(..., [function ($param1, $param2) {...}, $param1, $param2], $sort);
 $event->on(..., ['\App\Controller@method', $param1, $param2], $sort);
 ```
 
+Pass `$event = true` for force execute event.
+
+```php
+$event->on(true, ..., ...);
+```
+
 Parameter `$sort` responsible for the execution priority.
 
 #### `run(): void`
