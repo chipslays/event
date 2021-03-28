@@ -19,8 +19,15 @@ Parameter `$data` must be a `array`, `string` (json), `stdClass` or instance of 
 Paramater `$fn` must be a function or class (support static and non-static methods).
 
 ```php
-$event->on(..., function () {...});
-$event->on(..., '\App\Controller@method');
+$event->on(..., function () {...}, $sort);
+$event->on(..., '\App\Controller@method', $sort);
+```
+
+Pass any args for `$fn`:
+
+```php
+$event->on(..., [function ($param1, $param2) {...}, $param1, $param2], $sort);
+$event->on(..., ['\App\Controller@method', $param1, $param2], $sort);
 ```
 
 Parameter `$sort` responsible for the execution priority.
