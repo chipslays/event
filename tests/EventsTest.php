@@ -269,4 +269,20 @@ final class BotTest extends TestCase
 
         $this->assertEquals(10, $output);
     }
+
+    public function testForceEvent()
+    {
+        $event = new Event([]);
+
+        $event->on(true, function () {
+            echo 'force';
+        });
+
+        ob_start();
+        $event->run();
+        $output = ob_get_contents();
+        ob_end_clean();
+
+        $this->assertEquals('force', $output);
+    }
 }

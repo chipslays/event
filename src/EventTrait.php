@@ -9,12 +9,12 @@ trait EventTrait
     /**
      * @var Collection
      */
-    private $data = [];
+    protected $data = [];
 
     /**
      * @var array
      */
-    private $events = [];
+    protected $events = [];
 
     /**
      * @param array|string|\stdClass|\Chipslays\Collection\Collection $data
@@ -72,6 +72,18 @@ trait EventTrait
 
         foreach ($this->getEvents() as $item) {
             foreach ((array) $item['event'] as $key => $value) {
+                
+                /**
+                 * Force execute event 
+                 * on(true, ..., ...)
+                 */
+                if ($value === true) {
+                    $hasAnyEventCaught = true;
+                    if ($this->executeCallback($item['callback']) === false) {
+                        return $hasAnyEventCaught;
+                    }
+                    break;
+                }
 
                 /**
                  * [['key' => 'value'], ...]
@@ -148,7 +160,7 @@ trait EventTrait
      * @param array $params
      * @return mixed
      */
-    private function executeCallback($callback, $params = [])
+    protected function executeCallback($callback, $params = [])
     {
         /**
          * $this->addEvent($event, [$callback, [$param1, $param2, ...], $sort])
@@ -187,7 +199,7 @@ trait EventTrait
      * @param array $matches
      * @return array
      */
-    private function buildParamsFromMatches($matches)
+    protected function buildParamsFromMatches($matches)
     {
         return array_filter(array_map(function ($item) {
             return array_shift($item);
@@ -200,7 +212,7 @@ trait EventTrait
      * @param int $sort
      * @return void
      */
-    protected function addEvent($event, $callback, $sort)
+    public function addEvent($event, $callback, $sort)
     {
         $this->events[$sort][] = [
             'event' => $event,
@@ -211,7 +223,7 @@ trait EventTrait
     /**
      * @return array
      */
-    private function getEvents()
+    public function getEvents()
     {
         ksort($this->events);
         return call_user_func_array('array_merge', $this->events);
