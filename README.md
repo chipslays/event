@@ -14,7 +14,7 @@ $ composer require chipslays/event
 
 Parameter `$data` must be a `array`, `string` (json), `stdClass` or instance of `Chipslays\Collection\Collection`.
 
-#### `on(string $event, callable|string $fn [, int $sort = 500]): Event`
+#### `on(string $event, callable|string|array $fn [, int $sort = 500]): Event`
 
 Paramater `$fn` must be a function or class (support static and non-static methods).
 
@@ -55,7 +55,7 @@ trait MyEventTrait
 {
     /**
      * @param array|string $event
-     * @param callable|string $callback
+     * @param callable|string|array $callback
      * @param integer $sort
      * @return void
      */
@@ -120,9 +120,13 @@ $event = new Event([
     ],
 ]);
 
+// Callable function
 $event->on('message.text', function () {
     echo 'This event has `text`';
 });
+
+// Class
+$event->on('message.text', '\App\SomeController@greeting');
 
 $event->run();
 ```
@@ -194,4 +198,13 @@ $event->on(['*.text' => 'Hi!'], function () {
     echo "Hello!";
     return false;
 }, 400);
+```
+
+```php
+// Pass callback args
+$event->on('something', [function ($name, $email) {
+    ...
+}, 'John', 'test@ema.il']);
+
+$event->on('something', ['SomeController@insert', 'John', 'test@ema.il']);
 ```
