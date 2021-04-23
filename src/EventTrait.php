@@ -42,7 +42,7 @@ trait EventTrait
 
     /**
      * Handle events.
-     * 
+     *
      * @param array|string $event
      * @param callable|string|array $callback
      * @param integer $sort
@@ -72,9 +72,9 @@ trait EventTrait
 
         foreach ($this->getEvents() as $item) {
             foreach ((array) $item['event'] as $key => $value) {
-                
+
                 /**
-                 * Force execute event 
+                 * Force execute event
                  * on(true, ..., ...)
                  */
                 if ($value === true) {
@@ -125,10 +125,13 @@ trait EventTrait
 
                 /**
                  * ['key' => 'my name is {name}']
-                 * 
+                 *
                  * command(?: (.*?))?(?: (.*?))?$
+                 *
+                 * {text} - required text
+                 * {:text?} - optional text
                  */
-                $value = preg_replace('~.?{(.*?)\?}~', '(?: (.*?))?', $value);
+                $value = preg_replace('~.?{:(.*?)\?}~', '(?: (.*?))?', $value);
                 $pattern = '~^' . preg_replace('/{(.*?)}/', '(.*?)', $value) . '$~';
 
                 if (@preg_match_all($pattern, $received, $matches)) {

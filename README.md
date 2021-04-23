@@ -75,9 +75,9 @@ trait MyEventTrait
     public function on($event, $callback, int $sort = 500)
     {
         // do something before..
-        
+
         $this->addEvent($event, $callback, $sort);
-        
+
         // do something after...
     }
 
@@ -171,8 +171,8 @@ $event->on(['*.text' => 'My name is {name}'], function ($name) {
 
 ```php
 // {user} - is a required parameter, he should be in text
-// {time?} - is a optional parameter, it may not be in text
-$event->on(['*.text' => '/ban {user} {time?}'], function ($user = null, $time = null) {
+// {:time?} - is a optional parameter, it may not be in text
+$event->on(['*.text' => '/ban {user} {:time?}'], function ($user = null, $time = null) {
     echo "Banned: {$user}, time:" . $time ?? strtotime('+7 day');
 });
 ```
