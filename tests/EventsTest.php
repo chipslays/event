@@ -200,7 +200,7 @@ final class BotTest extends TestCase
             ],
         ]);
 
-        $event->on([['message.text' => '/ban {user?} {time?}']], function ($user = null, $time = null) {
+        $event->on([['message.text' => '/ban {:user?} {:time?}']], function ($user = null, $time = null) {
             echo "{$user} {$time}";
         });
 
@@ -220,7 +220,7 @@ final class BotTest extends TestCase
             ],
         ]);
 
-        $event->on([['message.text' => '/ban {user?} {time?}']], function ($user = null, $time = 'missed!') {
+        $event->on([['message.text' => '/ban {user?} {:time?}']], function ($user = null, $time = 'missed!') {
             echo "{$user} {$time}";
         });
 
@@ -230,6 +230,26 @@ final class BotTest extends TestCase
         ob_end_clean();
 
         $this->assertEquals('user missed!', $output);
+    }
+
+    public function testLikeCommandWithRequiredAndOptionalParamOn()
+    {
+        $event = new Event([
+            'message' => [
+                'text' => '/ban user time',
+            ],
+        ]);
+
+        $event->on([['message.text' => '/ban {user} {:time?}']], function ($user = null, $time = 'missed!') {
+            echo "{$user}: {$time}";
+        });
+
+        ob_start();
+        $event->run();
+        $output = ob_get_contents();
+        ob_end_clean();
+
+        $this->assertEquals('user: time', $output);
     }
 
     public function testMatchWithUnderlineOn()
