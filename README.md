@@ -2,6 +2,8 @@
 
 A simple event dispatching mechanism (like routing) for chat bots and not only.
 
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/chipslays/event/Tests)
+
 ## Installation
 
 ```bash
