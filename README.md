@@ -45,79 +45,6 @@ Parameter `$sort` responsible for the execution priority.
 
 Dispatch and execute all caught events.
 
-## Own Event class
-
-You can use events in your class by trait:
-
-```php
-use Chipslays\Event\EventTrait;
-
-class MyClass
-{
-    use EventTrait;
-
-    // ...
-}
-
-```
-
-Redefine methods `on`, `run`:
-
-```php
-use Chipslays\Event\EventTrait;
-
-// Redefine methods in other trait
-trait MyEventTrait
-{
-    /**
-     * @param array|string $event
-     * @param callable|string|array $callback
-     * @param integer $sort
-     * @return void
-     */
-    public function on($event, $callback, int $sort = 500)
-    {
-        // do something before..
-
-        $this->addEvent($event, $callback, $sort);
-
-        // do something after...
-    }
-
-    /**
-     * @return void
-     */
-    public function run()
-    {
-        if ($this->runAllEvents()) {
-            echo 'At least one event was caught';
-        } else {
-            echo 'No event was caught';
-        }
-    }
-}
-
-// Create custom class
-class MyEventClass
-{
-    use MyEventTrait, EventTrait {
-        MyEventTrait::on insteadof EventTrait;
-        MyEventTrait::run insteadof EventTrait;
-    }
-
-    // place some methods...
-}
-
-$event = new MyEventClass([...]);
-
-$event->on('...', function () {
-    ...
-});
-
-$event->run();
-
-```
-
 ## Usage
 
 ```php
@@ -223,4 +150,77 @@ $event->on('something', [function ($name, $email) {
 }, 'John', 'test@ema.il']);
 
 $event->on('something', ['SomeController@insert', 'John', 'test@ema.il']);
+```
+
+## Own Event class
+
+You can use events in your class by trait:
+
+```php
+use Chipslays\Event\EventTrait;
+
+class MyClass
+{
+    use EventTrait;
+
+    // ...
+}
+
+```
+
+Redefine methods `on`, `run`:
+
+```php
+use Chipslays\Event\EventTrait;
+
+// Redefine methods in other trait
+trait MyEventTrait
+{
+    /**
+     * @param array|string $event
+     * @param callable|string|array $callback
+     * @param integer $sort
+     * @return void
+     */
+    public function on($event, $callback, int $sort = 500)
+    {
+        // do something before..
+
+        $this->addEvent($event, $callback, $sort);
+
+        // do something after...
+    }
+
+    /**
+     * @return void
+     */
+    public function run()
+    {
+        if ($this->runAllEvents()) {
+            echo 'At least one event was caught';
+        } else {
+            echo 'No event was caught';
+        }
+    }
+}
+
+// Create custom class
+class MyEventClass
+{
+    use MyEventTrait, EventTrait {
+        MyEventTrait::on insteadof EventTrait;
+        MyEventTrait::run insteadof EventTrait;
+    }
+
+    // place some methods...
+}
+
+$event = new MyEventClass([...]);
+
+$event->on('...', function () {
+    ...
+});
+
+$event->run();
+
 ```
