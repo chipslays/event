@@ -15,7 +15,7 @@ $ composer require chipslays/event
 
 #### `__construct($data)`
 
-Parameter `$data` must be a `array`, `string` (json), `stdClass` or instance of `Chipslays\Collection\Collection`.
+Parameter `$data` must be a `array`, `json`, `stdClass` or instance of `Chipslays\Collection\Collection`.
 
 #### `on(string $event, callable|string|array $fn [, int $sort = 500]): Event`
 
