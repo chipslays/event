@@ -5,7 +5,7 @@
     "type": "library",
     "license": "MIT",
     "require": {
-        "chipslays/collection": "^1.0"
+        "chipslays/collection": "^1.1"
     },
     "autoload": {
         "psr-4": {
