@@ -184,7 +184,7 @@ trait MyEventTrait
      */
     public function on($event, $callback, int $sort = 500)
     {
-        // do something before..
+        // do something before...
 
         $this->addEvent($event, $callback, $sort);
 
@@ -196,7 +196,7 @@ trait MyEventTrait
      */
     public function run()
     {
-        if ($this->runAllEvents()) {
+        if ($this->handleEvents()) {
             echo 'At least one event was caught';
         } else {
             echo 'No event was caught';
@@ -215,10 +215,10 @@ class MyEventClass
     // place some methods...
 }
 
-$event = new MyEventClass([...]);
+$event = new MyEventClass(['message' => ['text' => 'hello']]);
 
-$event->on('...', function () {
-    ...
+$event->on(['message.text' => 'hello'], function () {
+    echo "👋 Hello!";
 });
 
 $event->run();
