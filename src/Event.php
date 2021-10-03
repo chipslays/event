@@ -3,16 +3,17 @@
 namespace Chipslays\Event;
 
 use Chipslays\Event\EventTrait;
+use Chipslays\Collection\Collection;
 
 class Event
 {
     use EventTrait;
-    
+
     /**
-     * @return Chipslays\Collection\Collection
+     * @return Collection
      */
-    public function getEventData()
+    public function getPayload()
     {
-        return $this->data;
+        return $this->payload;
     }
 }

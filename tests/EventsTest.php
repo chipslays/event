@@ -7,26 +7,14 @@ use Chipslays\Collection\Collection;
 
 final class BotTest extends TestCase
 {
-    public static function setUpBeforeClass(): void
-    {
-    }
-
-    protected  function setUp(): void
-    {
-    }
-
-    protected function tearDown(): void
-    {
-    }
-
     public function testCreateFromJson()
     {
-        $this->assertEquals(['test' => 'data'], (new Event('{"test": "data"}'))->getEventData()->toArray());
+        $this->assertEquals(['test' => 'data'], (new Event('{"test": "data"}'))->getPayload()->toArray());
     }
 
     public function testCreateFromArray()
     {
-        $this->assertEquals(['test' => 'data'], (new Event(['test' => 'data']))->getEventData()->toArray());
+        $this->assertEquals(['test' => 'data'], (new Event(['test' => 'data']))->getPayload()->toArray());
     }
 
     public function testCreateFromStdClass()
@@ -34,14 +22,14 @@ final class BotTest extends TestCase
         $stdClass = new stdClass;
         $stdClass->test = 'data';
 
-        $this->assertEquals(['test' => 'data'], (new Event($stdClass))->getEventData()->toArray());
+        $this->assertEquals(['test' => 'data'], (new Event($stdClass))->getPayload()->toArray());
     }
 
     public function testCreateFromCollection()
     {
         $collection = new Collection(['test' => 'data']);
 
-        $this->assertEquals(['test' => 'data'], (new Event($collection))->getEventData()->toArray());
+        $this->assertEquals(['test' => 'data'], (new Event($collection))->getPayload()->toArray());
     }
 
     public function testSingleOn()

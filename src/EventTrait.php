@@ -3,13 +3,17 @@
 namespace Chipslays\Event;
 
 use Chipslays\Collection\Collection;
+use Closure;
+use stdClass;
+use ReflectionMethod;
+use ReflectionException;
 
 trait EventTrait
 {
     /**
      * @var Collection
      */
-    protected $data = [];
+    protected $payload = [];
 
     /**
      * @var array
@@ -17,36 +21,38 @@ trait EventTrait
     protected $events = [];
 
     /**
-     * @param array|string|\stdClass|\Chipslays\Collection\Collection $data
+     * @param array|string|stdClass|Collection $payload
      */
-    public function __construct($data)
+    public function __construct($payload)
     {
-        $this->setEventData($data);
+        $this->setPayload($payload);
     }
 
     /**
-     * @param array|string|\stdClass|\Chipslays\Collection\Collection $data
+     * @param array|string|stdClass|Collection $payload
+     * @return void
      */
-    public function setEventData($data)
+    public function setPayload($payload)
     {
-        if (is_string($data)) {
-            if (($data = json_decode($data, true)) !== null) {
-                return ($this->data = new Collection($data));
+        if (is_string($payload)) {
+            if (($payload = @json_decode($payload, true)) !== null) {
+                $this->payload = new Collection($payload);
+                return;
             } else {
-                throw new \Exception("String must be a valid JSON.");
+                throw new EventException("String must be a valid JSON.");
             }
         }
 
-        $this->data = $data instanceof Collection ? $data : new Collection($data);
+        $this->payload = $payload instanceof Collection ? $payload : new Collection($payload);
     }
 
     /**
-     * Handle events.
+     * Add event.
      *
      * @param array|string $event
      * @param callable|string|array $callback
      * @param integer $sort
-     * @return mixed
+     * @return void
      */
     public function on($event, $callback, int $sort = 500)
     {
@@ -54,24 +60,24 @@ trait EventTrait
     }
 
     /**
-     * Execute events.
+     * Handle events.
      *
      * @return void
      */
     public function run()
     {
-        $this->runAllEvents();
+        $this->handleEvents();
     }
 
     /**
      * @return bool True any event has been caught, False no one event not be caught.
      */
-    protected function runAllEvents()
+    protected function handleEvents()
     {
         $hasAnyEventCaught = false;
 
-        foreach ($this->getEvents() as $item) {
-            foreach ((array) $item['event'] as $key => $value) {
+        foreach ($this->getEvents() as $event) {
+            foreach ((array) $event['pattern'] as $key => $value) {
 
                 /**
                  * Force execute event
@@ -79,7 +85,7 @@ trait EventTrait
                  */
                 if ($value === true) {
                     $hasAnyEventCaught = true;
-                    if ($this->executeCallback($item['callback']) === false) {
+                    if ($this->executeEventCallback($event['callback']) === false) {
                         return $hasAnyEventCaught;
                     }
                     break;
@@ -96,9 +102,9 @@ trait EventTrait
                 /**
                  * ['key'] or 'key'
                  */
-                if (is_numeric($key) && $this->data->has($value)) {
+                if (is_numeric($key) && $this->payload->has($value)) {
                     $hasAnyEventCaught = true;
-                    if ($this->executeCallback($item['callback']) === false) {
+                    if ($this->executeEventCallback($event['callback']) === false) {
                         return $hasAnyEventCaught;
                     }
                     break;
@@ -108,7 +114,7 @@ trait EventTrait
                  * Get value by key, if not exists then skip iteration.
                  * ['key' => 'value']
                  */
-                if (!$received = $this->data->get($key)) {
+                if (!$received = $this->payload->get($key)) {
                     continue;
                 }
 
@@ -117,7 +123,7 @@ trait EventTrait
                  */
                 if ($received == $value) {
                     $hasAnyEventCaught = true;
-                    if ($this->executeCallback($item['callback']) === false) {
+                    if ($this->executeEventCallback($event['callback']) === false) {
                         return $hasAnyEventCaught;
                     }
                     break;
@@ -136,7 +142,7 @@ trait EventTrait
 
                 if (@preg_match_all($pattern, $received, $matches)) {
                     $hasAnyEventCaught = true;
-                    if ($this->executeCallback($item['callback'], $this->buildParamsFromMatches($matches))  === false) {
+                    if ($this->executeEventCallback($event['callback'], $this->buildParamsFromMatches($matches))  === false) {
                         return $hasAnyEventCaught;
                     }
                     break;
@@ -147,7 +153,7 @@ trait EventTrait
                  */
                 if (@preg_match_all($value, $received, $matches)) {
                     $hasAnyEventCaught = true;
-                    if ($this->executeCallback($item['callback'], $this->buildParamsFromMatches($matches)) === false) {
+                    if ($this->executeEventCallback($event['callback'], $this->buildParamsFromMatches($matches)) === false) {
                         return $hasAnyEventCaught;
                     }
                     break;
@@ -163,9 +169,10 @@ trait EventTrait
      * @param array $params
      * @return mixed
      */
-    protected function executeCallback($callback, $params = [])
+    protected function executeEventCallback($callback, $params = [])
     {
         /**
+         * With force params.
          * $this->addEvent($event, [$callback, [$param1, $param2, ...], $sort])
          */
         if (is_array($callback)) {
@@ -174,14 +181,14 @@ trait EventTrait
             $params = array_merge($params, $tmp);
         }
 
-        if (is_callable($callback) || $callback instanceof \Closure) {
+        if (is_callable($callback) || $callback instanceof Closure) {
             return call_user_func_array($callback, $params);
         }
 
         [$controller, $method] = explode('@', $callback);
 
         try {
-            $reflectedMethod = new \ReflectionMethod($controller, $method);
+            $reflectedMethod = new ReflectionMethod($controller, $method);
 
             if ($reflectedMethod->isPublic() && (!$reflectedMethod->isAbstract())) {
                 if ($reflectedMethod->isStatic()) {
@@ -193,8 +200,8 @@ trait EventTrait
                     return call_user_func_array([$controller, $method], $params);
                 }
             }
-        } catch (\ReflectionException $reflectionException) {
-            // Do something...
+        } catch (ReflectionException $reflectionException) {
+            //
         }
     }
 
@@ -210,17 +217,14 @@ trait EventTrait
     }
 
     /**
-     * @param string|array $event
+     * @param string|array $pattern
      * @param callable|string|array $callback
      * @param int $sort
      * @return void
      */
-    public function addEvent($event, $callback, $sort)
+    protected function addEvent($pattern, $callback, $sort)
     {
-        $this->events[$sort][] = [
-            'event' => $event,
-            'callback' => $callback,
-        ];
+        $this->events[$sort][] = compact('pattern', 'callback');
     }
 
     /**
