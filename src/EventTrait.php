@@ -235,4 +235,12 @@ trait EventTrait
         ksort($this->events);
         return call_user_func_array('array_merge', $this->events);
     }
+
+    /**
+     * @return boolean
+     */
+    public function hasPayload()
+    {
+        return $this->payload !== [];
+    }
 }
