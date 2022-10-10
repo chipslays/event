@@ -93,13 +93,13 @@ trait WithEvent
      * @param array $callbackExtraParameters
      * @return this
      */
-    public function on($pattern, callable $callback, int $sort = EVENT_DEFAULT_SORT_VALUE, array $callbackExtraParameters = [])
+    public function on($pattern, $callback, int $sort = EVENT_DEFAULT_SORT_VALUE, array $callbackExtraParameters = [])
     {
         $this->__events[$sort][] = compact('pattern', 'callback', 'sort', 'callbackExtraParameters');
         return $this;
     }
 
-    public function default($pattern, callable $callback)
+    public function default($pattern, $callback)
     {
         $this->__defaultEvents[] = compact('pattern', 'callback');
     }
@@ -126,7 +126,7 @@ trait WithEvent
      * @param array $callbackExtraParameters
      * @return void
      */
-    public function beforeRun(callable $fn, int $sort = EVENT_DEFAULT_SORT_VALUE, array $callbackExtraParameters = [])
+    public function beforeRun($fn, int $sort = EVENT_DEFAULT_SORT_VALUE, array $callbackExtraParameters = [])
     {
         $this->__beforeRun[$sort][] = compact('fn', 'callbackExtraParameters');
     }
@@ -137,7 +137,7 @@ trait WithEvent
      * @param array $callbackExtraParameters
      * @return void
      */
-    public function afterRun(callable $fn, int $sort = EVENT_DEFAULT_SORT_VALUE, array $callbackExtraParameters = [])
+    public function afterRun($fn, int $sort = EVENT_DEFAULT_SORT_VALUE, array $callbackExtraParameters = [])
     {
         $this->__afterRun[$sort][] = compact('fn', 'callbackExtraParameters');
     }
