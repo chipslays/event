@@ -1,5 +1,3 @@
-.vscode
 vendor
 composer.lock
-event.bak.php
-examples
+test.php

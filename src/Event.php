@@ -2,18 +2,17 @@
 
 namespace Chipslays\Event;
 
-use Chipslays\Event\EventTrait;
-use Chipslays\Collection\Collection;
-
 class Event
 {
-    use EventTrait;
+    use WithEvent;
 
     /**
-     * @return Collection
+     * @param array|string|stdClass|Collection $payload
+     *
+     * @throws EventException
      */
-    public function getPayload()
+    public function __construct($payload = [])
     {
-        return $this->payload;
+        $this->setPayload($payload);
     }
 }
