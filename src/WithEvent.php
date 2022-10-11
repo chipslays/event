@@ -52,6 +52,7 @@ trait WithEvent
     {
         $this->resetEvents();
         $this->resetPayload();
+        $this->__defaultEvents = [];
     }
 
     /**
